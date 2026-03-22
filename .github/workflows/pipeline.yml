@@ -50,9 +50,11 @@ jobs:
                       ghcr.io/v4ldum/${{ inputs.project }}:${{ github.sha }}
 
     deploy:
+        if: ${{ always() && needs.build-and-push-image.result == 'success' }}
         runs-on: ubuntu-latest
         needs:
             - build-and-push-image
+
         steps:
             # This is needed while GitHub doesn't support IPv6
             - name: Set up WARP
@@ -123,9 +125,11 @@ jobs:
                   done
 
     cleanup:
+        if: ${{ always() && needs.deploy.result == 'success' }}
         runs-on: ubuntu-latest
         needs:
             - deploy
+
         steps:
             - name: Set up GitHub CLI
               run: |
