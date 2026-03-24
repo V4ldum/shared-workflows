@@ -1,0 +1,13 @@
+name: test rust project
+on:
+    workflow_call:
+
+jobs:
+    run-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+
+            - name: Analyze project source
+              run: cargo check --keep-going

@@ -1,0 +1,19 @@
+name: test dart project
+on:
+    workflow_call:
+
+jobs:
+    run-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dart-lang/setup-dart@v1
+
+            - name: Config Flutter
+              run: dart --disable-analytics
+
+            - name: Install dependencies
+              run: dart pub get
+
+            - name: Analyze project source
+              run: dart analyze
