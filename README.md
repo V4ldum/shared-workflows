@@ -5,41 +5,55 @@
 ```yaml
 name: CI/CD
 on:
+    workflow_dispatch:
     push:
-        branches: [main]
+        branches:
+            - "main"
         paths:
-            - "src/**"
-            - "Dockerfile"
-            - "docker-compose*.yml"
+            - src/**
+            - Dockerfile
+            - docker-compose.yml
+
+permissions:
+    contents: read
+    packages: write
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+env:
+    PROJECT: project
 
 jobs:
     detect-changes:
         runs-on: ubuntu-latest
         outputs:
-            src: ${{ steps.filter.outputs.src }}
-            compose: ${{ steps.filter.outputs.compose }}
+            project: ${{ env.PROJECT }}
+            rebuild: ${{ steps.filter.outputs.rebuild }}
+            redeploy: ${{ steps.filter.outputs.redeploy }}
         steps:
             - uses: actions/checkout@v4
             - uses: dorny/paths-filter@v3
               id: filter
               with:
                   filters: |
-                      src:
+                      rebuild:
                           - 'src/**'
                           - 'Dockerfile'
-                      compose:
-                          - 'docker-compose*.yml'
+                      redeploy:
+                          - 'docker-compose.yml'
 
     test:
         needs: detect-changes
-        if: needs.detect-changes.outputs.src == 'true'
+        if: needs.detect-changes.outputs.rebuild == 'true'
         uses: v4ldum/shared-workflows/.github/workflows/test-rust.yml@main
 
     build:
-        needs: test
+        needs: [detect-changes, test]
         uses: v4ldum/shared-workflows/.github/workflows/build.yml@main
         with:
-            project: my-project
+            project: ${{ needs.detect-changes.outputs.project }}
         secrets: inherit
 
     deploy:
@@ -47,17 +61,17 @@ jobs:
         if: >-
             always() &&
             (needs.build.result == 'success' ||
-             (needs.build.result == 'skipped' && needs.detect-changes.outputs.compose == 'true'))
+             (needs.build.result == 'skipped' && needs.detect-changes.outputs.redeploy == 'true'))
         uses: v4ldum/shared-workflows/.github/workflows/deploy.yml@main
         with:
-            project: my-project
+            project: ${{ needs.detect-changes.outputs.project }}
         secrets: inherit
 
     cleanup:
-        needs: build
+        needs: [detect-changes, build]
         if: needs.build.result == 'success'
         uses: v4ldum/shared-workflows/.github/workflows/cleanup.yml@main
         with:
-            project: my-project
+            project: ${{ needs.detect-changes.outputs.project }}
         secrets: inherit
 ```
