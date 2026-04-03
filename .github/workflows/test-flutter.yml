@@ -1,0 +1,33 @@
+name: test flutter project
+on:
+    workflow_call:
+        secrets:
+            ENV:
+                required: true
+
+jobs:
+    run-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: subosito/flutter-action@v2
+
+            - name: Config Flutter
+              run: flutter config --no-analytics --enable-web
+
+            - name: Clean project
+              run: flutter clean
+
+            - name: Install dependencies
+              run: flutter pub get
+
+            - name: Create env file
+              run: echo "${{ secrets.ENV }}" > .env
+
+            - name: Rebuild generated code
+              run: |
+                  rm -rf .dart_tool
+                  dart run build_runner build -d
+
+            - name: Analyze project source
+              run: dart analyze
