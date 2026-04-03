@@ -24,8 +24,12 @@ jobs:
                   password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Create env file
-              if: ${{ secrets.ENV != '' }}
-              run: echo "${{ secrets.ENV }}" > .env
+              run: |
+                  if [ -n "$ENV_SECRET" ]; then
+                    echo "$ENV_SECRET" > .env
+                  fi
+              env:
+                  ENV_SECRET: ${{ secrets.ENV }}
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3

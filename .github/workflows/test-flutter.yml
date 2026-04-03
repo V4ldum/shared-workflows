@@ -22,8 +22,12 @@ jobs:
               run: flutter pub get
 
             - name: Create env file
-              if: ${{ secrets.ENV != '' }}
-              run: echo "${{ secrets.ENV }}" > .env
+              run: |
+                  if [ -n "$ENV_SECRET" ]; then
+                    echo "$ENV_SECRET" > .env
+                  fi
+              env:
+                  ENV_SECRET: ${{ secrets.ENV }}
 
             - name: Rebuild generated code
               run: |
