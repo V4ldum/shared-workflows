@@ -3,7 +3,7 @@ on:
     workflow_call:
         secrets:
             ENV:
-                required: true
+                required: false
 
 jobs:
     run-tests:
@@ -22,6 +22,7 @@ jobs:
               run: flutter pub get
 
             - name: Create env file
+              if: ${{ secrets.ENV != '' }}
               run: echo "${{ secrets.ENV }}" > .env
 
             - name: Rebuild generated code
