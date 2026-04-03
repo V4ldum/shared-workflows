@@ -1,4 +1,4 @@
-name: test dart project
+name: test static-shock project
 on:
     workflow_call:
 
