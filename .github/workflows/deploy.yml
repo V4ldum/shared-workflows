@@ -12,13 +12,13 @@ jobs:
         steps:
             # This is needed while GitHub doesn't support IPv6
             - name: Set up WARP
-              uses: fscarmen/warp-on-actions@v1.3
+              uses: fscarmen/warp-on-actions@v1.4
               with:
                   stack: dual # Optional. Support [ ipv4, ipv6, dual ]. Default is dual.
                   mode: client # Optional. Support [ wireguard, client ]. Default is wireguard.
 
             - name: Checkout repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: Setup SSH key
               env:
