@@ -1,9 +1,15 @@
 name: test rust project
 on:
     workflow_call:
+        inputs:
+            enabled:
+                required: false
+                type: boolean
+                default: true
 
 jobs:
     run-tests:
+        if: inputs.enabled
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6

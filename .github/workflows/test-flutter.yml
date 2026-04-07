@@ -1,12 +1,18 @@
 name: test flutter project
 on:
     workflow_call:
+        inputs:
+            enabled:
+                required: false
+                type: boolean
+                default: true
         secrets:
             ENV:
                 required: false
 
 jobs:
     run-tests:
+        if: inputs.enabled
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
