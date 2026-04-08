@@ -9,17 +9,21 @@ on:
 
 jobs:
     run-tests:
-        if: inputs.enabled
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
+              if: inputs.enabled
             - uses: dart-lang/setup-dart@v1
+              if: inputs.enabled
 
             - name: Config Flutter
+              if: inputs.enabled
               run: dart --disable-analytics
 
             - name: Install dependencies
+              if: inputs.enabled
               run: dart pub get
 
             - name: Analyze project source
+              if: inputs.enabled
               run: dart analyze

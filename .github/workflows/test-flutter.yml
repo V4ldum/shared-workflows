@@ -12,22 +12,27 @@ on:
 
 jobs:
     run-tests:
-        if: inputs.enabled
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
+              if: inputs.enabled
             - uses: subosito/flutter-action@v2
+              if: inputs.enabled
 
             - name: Config Flutter
+              if: inputs.enabled
               run: flutter config --no-analytics --enable-web
 
             - name: Clean project
+              if: inputs.enabled
               run: flutter clean
 
             - name: Install dependencies
+              if: inputs.enabled
               run: flutter pub get
 
             - name: Create env file
+              if: inputs.enabled
               run: |
                   if [ -n "$ENV_SECRET" ]; then
                     echo "$ENV_SECRET" > .env
@@ -36,9 +41,11 @@ jobs:
                   ENV_SECRET: ${{ secrets.ENV }}
 
             - name: Rebuild generated code
+              if: inputs.enabled
               run: |
                   rm -rf .dart_tool
                   dart run build_runner build -d
 
             - name: Analyze project source
+              if: inputs.enabled
               run: dart analyze
