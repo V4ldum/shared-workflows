@@ -64,6 +64,10 @@ jobs:
                     ## Scale down
                     CODE=$(docker inspect --format "{{.State.ExitCode}}" "$NEW")
                     if [ "$CODE" = "0" ]; then
+                      ### Drain old container
+                      docker exec "$OLD" touch /tmp/drain
+                      sleep 10
+
                       ### Delete old and scale down if healthy
                       docker container rm -f "$OLD"
                       docker compose up -d --no-deps --scale $SERVICE=1 --no-recreate $SERVICE
