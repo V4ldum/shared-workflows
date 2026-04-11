@@ -65,7 +65,7 @@ jobs:
                     CODE=$(docker inspect --format "{{.State.ExitCode}}" "$NEW")
                     if [ "$CODE" = "0" ]; then
                       ### Drain old container
-                      docker exec "$OLD" /bin/touch /tmp/drain
+                      #docker exec "$OLD" /bin/touch /tmp/drain
                       sleep 10
 
                       ### Delete old and scale down if healthy
