@@ -5,6 +5,10 @@ on:
             project:
                 required: true
                 type: string
+            drain:
+                required: false
+                type: boolean
+                default: true
 
 jobs:
     deploy:
@@ -65,8 +69,10 @@ jobs:
                     CODE=$(docker inspect --format "{{.State.ExitCode}}" "$NEW")
                     if [ "$CODE" = "0" ]; then
                       ### Drain old container
-                      docker exec "$OLD" /bin/touch /tmp/drain
-                      sleep 10
+                      if [ "${{ inputs.drain }}" = "true" ]; then
+                        docker exec "$OLD" /bin/touch /tmp/drain
+                        sleep 10
+                      fi
 
                       ### Delete old and scale down if healthy
                       docker container rm -f "$OLD"
