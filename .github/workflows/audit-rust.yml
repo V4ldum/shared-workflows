@@ -1,0 +1,17 @@
+name: audit dependencies of a rust project
+on:
+    workflow_call:
+
+env:
+    CARGO_TERM_COLOR: always
+
+jobs:
+    audit:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - uses: taiki-e/install-action@cargo-deny
+
+            - name: Scan for vulnerabilities
+              run: cargo deny check advisories

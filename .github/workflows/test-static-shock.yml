@@ -13,6 +13,7 @@ jobs:
         steps:
             - uses: actions/checkout@v6
               if: inputs.enabled
+
             - uses: dart-lang/setup-dart@v1
               if: inputs.enabled
 
