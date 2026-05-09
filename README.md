@@ -48,13 +48,17 @@ jobs:
         needs: detect-changes
         if: needs.detect-changes.outputs.rebuild == 'true'
         uses: v4ldum/shared-workflows/.github/workflows/test-rust.yml@main
+        with:
+            test: true
+            format: true
+            clippy: true
 
     build:
         needs: [detect-changes, test]
         uses: v4ldum/shared-workflows/.github/workflows/build.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 
     deploy:
         needs: [detect-changes, build]
@@ -63,17 +67,17 @@ jobs:
             (needs.build.result == 'success' ||
              (needs.build.result == 'skipped' && needs.detect-changes.outputs.redeploy == 'true'))
         uses: v4ldum/shared-workflows/.github/workflows/deploy.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 
     cleanup:
         needs: [detect-changes, build]
         if: needs.build.result == 'success'
         uses: v4ldum/shared-workflows/.github/workflows/cleanup.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 ```
 
 ## Flutter project
@@ -125,13 +129,17 @@ jobs:
         if: needs.detect-changes.outputs.rebuild == 'true'
         uses: v4ldum/shared-workflows/.github/workflows/test-flutter.yml@main
         secrets: inherit
+        with:
+            test: true
+            format: true
+            analyze: true
 
     build:
         needs: [detect-changes, test]
         uses: v4ldum/shared-workflows/.github/workflows/build.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 
     deploy:
         needs: [detect-changes, build]
@@ -140,17 +148,17 @@ jobs:
             (needs.build.result == 'success' ||
              (needs.build.result == 'skipped' && needs.detect-changes.outputs.redeploy == 'true'))
         uses: v4ldum/shared-workflows/.github/workflows/deploy.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 
     cleanup:
         needs: [detect-changes, build]
         if: needs.build.result == 'success'
         uses: v4ldum/shared-workflows/.github/workflows/cleanup.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 ```
 
 ## Static Shock project (legacy)
@@ -203,13 +211,15 @@ jobs:
         needs: detect-changes
         if: needs.detect-changes.outputs.rebuild == 'true'
         uses: v4ldum/shared-workflows/.github/workflows/test-static-shock.yml@main
+        with:
+            enabled: true
 
     build:
         needs: [detect-changes, test]
         uses: v4ldum/shared-workflows/.github/workflows/build.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 
     deploy:
         needs: [detect-changes, build]
@@ -218,15 +228,15 @@ jobs:
             (needs.build.result == 'success' ||
              (needs.build.result == 'skipped' && needs.detect-changes.outputs.redeploy == 'true'))
         uses: v4ldum/shared-workflows/.github/workflows/deploy.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 
     cleanup:
         needs: [detect-changes, build]
         if: needs.build.result == 'success'
         uses: v4ldum/shared-workflows/.github/workflows/cleanup.yml@main
+        secrets: inherit
         with:
             project: ${{ needs.detect-changes.outputs.project }}
-        secrets: inherit
 ```

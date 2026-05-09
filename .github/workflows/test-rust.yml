@@ -2,20 +2,62 @@ name: test rust project
 on:
     workflow_call:
         inputs:
-            enabled:
+            test:
+                required: false
+                type: boolean
+                default: true
+            format:
+                required: false
+                type: boolean
+                default: true
+            clippy:
                 required: false
                 type: boolean
                 default: true
 
+env:
+    CARGO_TERM_COLOR: always
+
 jobs:
-    run-tests:
+    test:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-              if: inputs.enabled
-            - uses: actions-rust-lang/setup-rust-toolchain@v1
-              if: inputs.enabled
+              if: inputs.test
 
-            - name: Analyze project source
-              if: inputs.enabled
-              run: cargo check --keep-going
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              if: inputs.test
+
+            - name: Run tests
+              if: inputs.test
+              run: cargo test
+
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+              if: inputs.format
+
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              if: inputs.format
+              with:
+                  components: rustfmt
+
+            - name: Enforce formatting
+              if: inputs.format
+              run: cargo fmt --check
+
+    clippy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+              if: inputs.clippy
+
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              if: inputs.clippy
+              with:
+                  components: clippy
+
+            - name: Linting
+              if: inputs.clippy
+              run: cargo clippy -- -D warnings

@@ -80,7 +80,7 @@ jobs:
 
                       docker rename "$NEW" ${{ inputs.project }}
                     else
-                      # Delete new and scale down if unhealthy
+                      ### Delete new and scale down if unhealthy
                       docker logs "$NEW"
                       docker container rm -f "$NEW"
                       docker compose up -d --no-deps --scale $SERVICE=1 --no-recreate $SERVICE

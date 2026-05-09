@@ -2,7 +2,15 @@ name: test flutter project
 on:
     workflow_call:
         inputs:
-            enabled:
+            test:
+                required: false
+                type: boolean
+                default: true
+            format:
+                required: false
+                type: boolean
+                default: true
+            analyze:
                 required: false
                 type: boolean
                 default: true
@@ -11,28 +19,24 @@ on:
                 required: false
 
 jobs:
-    run-tests:
+    test:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-              if: inputs.enabled
+              if: inputs.test
             - uses: subosito/flutter-action@v2
-              if: inputs.enabled
+              if: inputs.test
 
             - name: Config Flutter
-              if: inputs.enabled
+              if: inputs.test
               run: flutter config --no-analytics --enable-web
 
-            - name: Clean project
-              if: inputs.enabled
-              run: flutter clean
-
             - name: Install dependencies
-              if: inputs.enabled
+              if: inputs.test
               run: flutter pub get
 
             - name: Create env file
-              if: inputs.enabled
+              if: inputs.test
               run: |
                   if [ -n "$ENV_SECRET" ]; then
                     echo "$ENV_SECRET" > .env
@@ -41,11 +45,58 @@ jobs:
                   ENV_SECRET: ${{ secrets.ENV }}
 
             - name: Rebuild generated code
-              if: inputs.enabled
+              if: inputs.test
+              run: dart run build_runner build -d
+
+            - name: Run tests
+              if: inputs.test
+              run: flutter test --color
+
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+              if: inputs.format
+            - uses: subosito/flutter-action@v2
+              if: inputs.format
+
+            - name: Config Flutter
+              if: inputs.format
+              run: flutter config --no-analytics --enable-web
+
+            - name: Enforce formatting
+              if: inputs.format
+              run: dart format --set-exit-if-changed --output=none .
+
+    analyze:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+              if: inputs.analyze
+            - uses: subosito/flutter-action@v2
+              if: inputs.analyze
+
+            - name: Config Flutter
+              if: inputs.analyze
+              run: flutter config --no-analytics --enable-web
+
+            - name: Install dependencies
+              if: inputs.analyze
+              run: flutter pub get
+
+            - name: Create env file
+              if: inputs.analyze
               run: |
-                  rm -rf .dart_tool
-                  dart run build_runner build -d
+                  if [ -n "$ENV_SECRET" ]; then
+                    echo "$ENV_SECRET" > .env
+                  fi
+              env:
+                  ENV_SECRET: ${{ secrets.ENV }}
+
+            - name: Rebuild generated code
+              if: inputs.analyze
+              run: dart run build_runner build -d
 
             - name: Analyze project source
-              if: inputs.enabled
-              run: dart analyze
+              if: inputs.analyze
+              run: dart analyze --fatal-infos --fatal-warnings
