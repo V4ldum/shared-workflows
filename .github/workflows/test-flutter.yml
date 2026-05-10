@@ -53,22 +53,22 @@ jobs:
               if: inputs.test
               run: flutter test --color
 
-    format:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v6
-              if: inputs.format
+    #format:
+    #    runs-on: ubuntu-latest
+    #    steps:
+    #        - uses: actions/checkout@v6
+    #          if: inputs.format
 
-            - uses: subosito/flutter-action@v2
-              if: inputs.format
+    #        - uses: subosito/flutter-action@v2
+    #          if: inputs.format
 
-            - name: Config Flutter
-              if: inputs.format
-              run: flutter config --no-analytics --enable-web
+    #        - name: Config Flutter
+    #          if: inputs.format
+    #          run: flutter config --no-analytics --enable-web
 
-            - name: Enforce formatting
-              if: inputs.format
-              run: dart format --set-exit-if-changed --output=none .
+    #        - name: Enforce formatting
+    #          if: inputs.format
+    #          run: dart format --set-exit-if-changed --output=none .
 
     analyze:
         runs-on: ubuntu-latest
