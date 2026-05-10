@@ -102,4 +102,4 @@ jobs:
 
             - name: Analyze project source
               if: inputs.analyze
-              run: dart analyze --fatal-infos --fatal-warnings
+              run: flutter analyze --fatal-infos --fatal-warnings
