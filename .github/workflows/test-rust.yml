@@ -29,6 +29,14 @@ jobs:
             - uses: actions-rust-lang/setup-rust-toolchain@v1
               if: inputs.test
 
+            - name: Install sqlx-cli
+              if: inputs.test
+              run: cargo install sqlx-cli --locked
+
+            - name: Check SQLX queries
+              if: inputs.test
+              run: cargo sqlx prepare --workspace --check -- --all-targets
+
             - name: Run tests
               if: inputs.test
               run: cargo test
