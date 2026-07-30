@@ -1,25 +1,55 @@
 name: test rust project
 on:
     workflow_call:
-        inputs:
-            test:
-                required: false
-                type: boolean
-                default: true
-            format:
-                required: false
-                type: boolean
-                default: true
-            clippy:
-                required: false
-                type: boolean
-                default: true
+        #inputs:
+        #    test:
+        #        required: false
+        #        type: boolean
+        #        default: true
+        #    format:
+        #        required: false
+        #        type: boolean
+        #        default: true
+        #    clippy:
+        #        required: false
+        #        type: boolean
+        #        default: true
 
 env:
     CARGO_TERM_COLOR: always
     SQLX_OFFLINE: true
 
 jobs:
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+              if: inputs.format
+
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              if: inputs.format
+              with:
+                  components: rustfmt
+
+            - name: Enforce formatting
+              if: inputs.format
+              run: cargo fmt --all --check
+
+    clippy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+              if: inputs.clippy
+
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              if: inputs.clippy
+              with:
+                  components: clippy
+
+            - name: Linting
+              if: inputs.clippy
+              run: cargo clippy --workspace --all-targets --release -- -D warnings
+
     test:
         runs-on: ubuntu-latest
         steps:
@@ -31,34 +61,4 @@ jobs:
 
             - name: Run tests
               if: inputs.test
-              run: cargo test --release
-
-    #format:
-    #    runs-on: ubuntu-latest
-    #    steps:
-    #        - uses: actions/checkout@v6
-    #          if: inputs.format
-
-    #        - uses: actions-rust-lang/setup-rust-toolchain@v1
-    #          if: inputs.format
-    #          with:
-    #              components: rustfmt ## leptosfmt?
-
-    #        - name: Enforce formatting
-    #          if: inputs.format
-    #          run: cargo fmt --check
-
-    #clippy:
-    #    runs-on: ubuntu-latest
-    #    steps:
-    #        - uses: actions/checkout@v6
-    #          if: inputs.clippy
-
-    #        - uses: actions-rust-lang/setup-rust-toolchain@v1
-    #          if: inputs.clippy
-    #          with:
-    #              components: clippy
-
-    #        - name: Linting
-    #          if: inputs.clippy
-    #          run: cargo clippy -- -D warnings
+              run: cargo test --workspace --release
