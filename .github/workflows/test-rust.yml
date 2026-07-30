@@ -24,41 +24,41 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-              if: inputs.format
+              #if: inputs.format
 
             - uses: actions-rust-lang/setup-rust-toolchain@v1
-              if: inputs.format
+              #if: inputs.format
               with:
                   components: rustfmt
 
             - name: Enforce formatting
-              if: inputs.format
+              #if: inputs.format
               run: cargo fmt --all --check
 
     clippy:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-              if: inputs.clippy
+              #if: inputs.clippy
 
             - uses: actions-rust-lang/setup-rust-toolchain@v1
-              if: inputs.clippy
+              #if: inputs.clippy
               with:
                   components: clippy
 
             - name: Linting
-              if: inputs.clippy
-              run: cargo clippy --workspace --all-targets --release -- -D warnings
+              #if: inputs.clippy
+              run: cargo clippy --workspace --all-targets -- -D warnings
 
     test:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-              if: inputs.test
+              #if: inputs.test
 
             - uses: actions-rust-lang/setup-rust-toolchain@v1
-              if: inputs.test
+              #if: inputs.test
 
             - name: Run tests
-              if: inputs.test
+              #if: inputs.test
               run: cargo test --workspace --release
