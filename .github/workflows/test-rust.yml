@@ -1,19 +1,19 @@
 name: test rust project
 on:
     workflow_call:
-        #inputs:
-        #    test:
-        #        required: false
-        #        type: boolean
-        #        default: true
-        #    format:
-        #        required: false
-        #        type: boolean
-        #        default: true
-        #    clippy:
-        #        required: false
-        #        type: boolean
-        #        default: true
+        inputs:
+            test:
+                required: false
+                type: boolean
+                default: true
+            format:
+                required: false
+                type: boolean
+                default: true
+            clippy:
+                required: false
+                type: boolean
+                default: true
 
 env:
     CARGO_TERM_COLOR: always
@@ -21,51 +21,44 @@ env:
 
 jobs:
     format:
+        if: inputs.format
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-              #if: inputs.format
 
             - uses: actions-rust-lang/setup-rust-toolchain@v1
-              #if: inputs.format
               with:
                   components: rustfmt
                   cache: false
 
             - name: Enforce formatting
-              #if: inputs.format
               run: cargo fmt --all --check
 
     clippy:
+        if: inputs.clippy
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-              #if: inputs.clippy
 
             - uses: actions-rust-lang/setup-rust-toolchain@v1
-              #if: inputs.clippy
               with:
                   components: clippy
 
             - name: Linting
-              #if: inputs.clippy
               env:
                   # Reduce cache size for debug builds, which this is
                   CARGO_PROFILE_DEV_DEBUG: 0
               run: cargo clippy --locked --workspace --all-targets -- -D warnings
 
     test:
+        if: inputs.test
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-              #if: inputs.test
 
             - uses: actions-rust-lang/setup-rust-toolchain@v1
-              #if: inputs.test
 
             - uses: taiki-e/install-action@nextest
-              #if: inputs.test
 
             - name: Run tests
-              #if: inputs.test
-              run: cargo nextest run --locked --workspace --all-targets --release --max-fail 5
+              run: cargo nextest run --locked --workspace --all-targets --release --max-fail 5 --no-tests=pass
