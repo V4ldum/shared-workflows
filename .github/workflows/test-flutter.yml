@@ -52,7 +52,7 @@ jobs:
 
             - name: Cache build_runner state
               if: inputs.analyze || inputs.test
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: .dart_tool/build
                   key: build-runner-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
