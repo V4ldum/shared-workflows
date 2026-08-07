@@ -2,10 +2,6 @@ name: test flutter project
 on:
     workflow_call:
         inputs:
-            test:
-                required: false
-                type: boolean
-                default: true
             format:
                 required: false
                 type: boolean
@@ -14,30 +10,39 @@ on:
                 required: false
                 type: boolean
                 default: true
+            test:
+                required: false
+                type: boolean
+                default: true
         secrets:
             ENV:
                 required: false
 
 jobs:
-    test:
+    correctness:
+        if: inputs.format || inputs.analyze || inputs.test
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v7
-              if: inputs.test
 
             - uses: subosito/flutter-action@v2
-              if: inputs.test
+              with:
+                  cache: true
+                  pub-cache: true
 
             - name: Config Flutter
-              if: inputs.test
               run: flutter config --no-analytics --enable-web
 
+            - name: Enforce formatting
+              if: inputs.format
+              run: dart format --set-exit-if-changed --output=none .
+
             - name: Install dependencies
-              if: inputs.test
+              if: inputs.analyze || inputs.test
               run: flutter pub get
 
             - name: Create env file
-              if: inputs.test
+              if: inputs.analyze || inputs.test
               run: |
                   if [ -n "$ENV_SECRET" ]; then
                     echo "$ENV_SECRET" > .env
@@ -45,61 +50,23 @@ jobs:
               env:
                   ENV_SECRET: ${{ secrets.ENV }}
 
-            - name: Rebuild generated code
-              if: inputs.test
-              run: dart run build_runner build -d
-
-            - name: Run tests
-              if: inputs.test
-              run: flutter test --color
-
-    #format:
-    #    runs-on: ubuntu-latest
-    #    steps:
-    #        - uses: actions/checkout@v7
-    #          if: inputs.format
-
-    #        - uses: subosito/flutter-action@v2
-    #          if: inputs.format
-
-    #        - name: Config Flutter
-    #          if: inputs.format
-    #          run: flutter config --no-analytics --enable-web
-
-    #        - name: Enforce formatting
-    #          if: inputs.format
-    #          run: dart format --set-exit-if-changed --output=none .
-
-    analyze:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v7
-              if: inputs.analyze
-
-            - uses: subosito/flutter-action@v2
-              if: inputs.analyze
-
-            - name: Config Flutter
-              if: inputs.analyze
-              run: flutter config --no-analytics --enable-web
-
-            - name: Install dependencies
-              if: inputs.analyze
-              run: flutter pub get
-
-            - name: Create env file
-              if: inputs.analyze
-              run: |
-                  if [ -n "$ENV_SECRET" ]; then
-                    echo "$ENV_SECRET" > .env
-                  fi
-              env:
-                  ENV_SECRET: ${{ secrets.ENV }}
+            - name: Cache build_runner state
+              if: inputs.analyze || inputs.test
+              uses: actions/cache@v4
+              with:
+                  path: .dart_tool/build
+                  key: build-runner-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
+                  restore-keys: |
+                      build-runner-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}-
 
             - name: Rebuild generated code
-              if: inputs.analyze
+              if: inputs.analyze || inputs.test
               run: dart run build_runner build -d
 
             - name: Analyze project source
               if: inputs.analyze
               run: flutter analyze --fatal-infos --fatal-warnings
+
+            - name: Run tests
+              if: inputs.test
+              run: flutter test --color
