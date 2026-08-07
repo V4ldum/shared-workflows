@@ -22,7 +22,7 @@ jobs:
                   mode: client # Optional. Support [ wireguard, client ]. Default is wireguard.
 
             - name: Checkout repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
 
             - name: Setup SSH key
               env:

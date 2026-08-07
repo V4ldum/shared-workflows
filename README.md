@@ -33,8 +33,8 @@ jobs:
             rebuild: ${{ steps.filter.outputs.rebuild }}
             redeploy: ${{ steps.filter.outputs.redeploy }}
         steps:
-            - uses: actions/checkout@v4
-            - uses: dorny/paths-filter@v3
+            - uses: actions/checkout@v7
+            - uses: dorny/paths-filter@v4
               id: filter
               with:
                   filters: |
@@ -113,8 +113,8 @@ jobs:
             rebuild: ${{ steps.filter.outputs.rebuild }}
             redeploy: ${{ steps.filter.outputs.redeploy }}
         steps:
-            - uses: actions/checkout@v4
-            - uses: dorny/paths-filter@v3
+            - uses: actions/checkout@v7
+            - uses: dorny/paths-filter@v4
               id: filter
               with:
                   filters: |
@@ -195,8 +195,8 @@ jobs:
             rebuild: ${{ steps.filter.outputs.rebuild }}
             redeploy: ${{ steps.filter.outputs.redeploy }}
         steps:
-            - uses: actions/checkout@v4
-            - uses: dorny/paths-filter@v3
+            - uses: actions/checkout@v7
+            - uses: dorny/paths-filter@v4
               id: filter
               with:
                   filters: |
