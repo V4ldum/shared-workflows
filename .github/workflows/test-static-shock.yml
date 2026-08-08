@@ -8,23 +8,19 @@ on:
                 default: true
 
 jobs:
-    test:
+    analyze:
         runs-on: ubuntu-latest
+        if: inputs.enabled
         steps:
             - uses: actions/checkout@v7
-              if: inputs.enabled
 
             - uses: dart-lang/setup-dart@v1
-              if: inputs.enabled
 
             - name: Config Dart
-              if: inputs.enabled
               run: dart --disable-analytics
 
             - name: Install dependencies
-              if: inputs.enabled
               run: dart pub get
 
             - name: Analyze project source
-              if: inputs.enabled
               run: dart analyze
