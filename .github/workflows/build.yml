@@ -39,6 +39,7 @@ jobs:
               with:
                   context: .
                   push: true
+                  provenance: false
                   platforms: linux/amd64
                   cache-from: type=gha,scope=${{ inputs.project }}
                   cache-to: type=gha,mode=max,scope=${{ inputs.project }}
