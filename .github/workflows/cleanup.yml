@@ -12,4 +12,8 @@ jobs:
         steps:
           - uses: dataaxiom/ghcr-cleanup-action@v1
             with:
+                package: ${{ inputs.project }}
                 keep-n-tagged: 3
+                delete-ghost-images: true
+                delete-partial-images: true
+                delete-orphaned-images: true
