@@ -1,11 +1,6 @@
 name: deploy to vps
 on:
     workflow_call:
-        inputs:
-            drain:
-                required: false
-                type: boolean
-                default: true
 
 jobs:
     deploy:

@@ -43,12 +43,12 @@ jobs:
 
             - name: Create env file
               if: inputs.analyze || inputs.test
+              env:
+                  ENV_SECRET: ${{ secrets.ENV }}
               run: |
                   if [ -n "$ENV_SECRET" ]; then
                     echo "$ENV_SECRET" > .env
                   fi
-              env:
-                  ENV_SECRET: ${{ secrets.ENV }}
 
             - name: Cache build_runner state
               if: inputs.analyze || inputs.test
