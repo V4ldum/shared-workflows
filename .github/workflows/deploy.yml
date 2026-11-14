@@ -30,7 +30,7 @@ jobs:
                               apply \
                               --server-side \
                               --prune \
-                              --applyset=configmaps/$PROJECT \
+                              --applyset="configmaps/$PROJECT-apply-set" \
                               -n default \
                               -f kubernetes.yml
 
