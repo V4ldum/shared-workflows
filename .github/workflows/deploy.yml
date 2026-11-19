@@ -40,8 +40,7 @@ jobs:
             - name: Apply manifest
               if: ${{ inputs.apply }}
               run: |
-                      kubectl --server="$KUBE_SERVER" \
-                              --token="$KUBE_TOKEN" \
+                      kubectl --server="$KUBE_SERVER" --token="$KUBE_TOKEN" \
                               apply \
                               --server-side \
                               --prune \
@@ -52,16 +51,26 @@ jobs:
             - name: Rollout
               if: ${{ inputs.rollout }}
               run: |
-                      kubectl --server="$KUBE_SERVER" \
-                      --token="$KUBE_TOKEN" \
-                      rollout restart "deployment/$PROJECT" \
-                      -n default
+                      # If a rollout is currently in progress, it means apply ran it, no need to run it again
+                      # If no rollout is in progress, it will print "deployment successfully rolled out"
+                      if kubectl --server="$KUBE_SERVER" --token="$KUBE_TOKEN" \
+                         rollout status "deployment/$PROJECT" \
+                         --watch=false \
+                         -n default \
+                         | grep -q "successfully"
+                      then
+                        kubectl --server="$KUBE_SERVER" \
+                        --token="$KUBE_TOKEN" \
+                        rollout restart "deployment/$PROJECT" \
+                        -n default
+                      else
+                        echo "Skipping rollout"
+                      fi
 
             - name: Wait for rollout
               if: ${{ inputs.apply || inputs.rollout }}
               run: |
-                      kubectl --server="$KUBE_SERVER" \
-                              --token="$KUBE_TOKEN" \
+                      kubectl --server="$KUBE_SERVER" --token="$KUBE_TOKEN" \
                               rollout status "deployment/$PROJECT" \
                               --timeout=180s \
                               -n default
