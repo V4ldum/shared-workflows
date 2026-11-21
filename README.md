@@ -180,16 +180,12 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
-env:
-    PROJECT: project
-
 jobs:
     detect-changes:
         runs-on: ubuntu-latest
         permissions:
             contents: read
         outputs:
-            project: ${{ env.PROJECT }}
             build: ${{ steps.filter.outputs.build }}
             deploy: ${{ steps.filter.outputs.deploy }}
         steps:
@@ -219,7 +215,7 @@ jobs:
         uses: v4ldum/shared-workflows/.github/workflows/build.yml@main
         secrets: inherit
         with:
-            project: ${{ needs.detect-changes.outputs.project }}
+            project: PROJECT
         permissions:
             contents: read
             packages: write
@@ -234,7 +230,7 @@ jobs:
         uses: v4ldum/shared-workflows/.github/workflows/deploy.yml@main
         secrets: inherit
         with:
-            project: ${{ needs.detect-changes.outputs.project }}
+            project: PROJECT
             apply: ${{ needs.detect-changes.outputs.deploy == 'true' }}
             rollout: ${{ needs.detect-changes.outputs.build == 'true' }}
         permissions:
@@ -247,7 +243,7 @@ jobs:
         uses: v4ldum/shared-workflows/.github/workflows/cleanup.yml@main
         secrets: inherit
         with:
-            project: ${{ needs.detect-changes.outputs.project }}
+            project: PROJECT
         permissions:
             packages: write
 ```
