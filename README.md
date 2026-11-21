@@ -1,6 +1,6 @@
 # Shared Workflows
 
-## Rust project
+## Rust CD
 
 ```yaml
 name: Build & Deploy
@@ -86,7 +86,7 @@ jobs:
 
 ```
 
-## Flutter project
+## Flutter CD
 
 ```yaml
 name: Build & Deploy
@@ -174,7 +174,7 @@ jobs:
 
 ```
 
-## Static Shock project (legacy)
+## Static Shock CD (legacy)
 
 ```yaml
 name: Build & Deploy
@@ -259,4 +259,19 @@ jobs:
             project: PROJECT
         permissions:
             packages: write
+```
+
+## Rust Audit Dependencies
+
+```yaml
+name: Security audit
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: "52 4 10 * *"
+          timezone: "Europe/Paris"
+
+jobs:
+    audit:
+        uses: v4ldum/shared-workflows/.github/workflows/audit-rust.yml@main
 ```
