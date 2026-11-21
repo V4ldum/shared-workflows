@@ -3,7 +3,7 @@
 ## Rust project
 
 ```yaml
-name: CI/CD
+name: Build & Deploy
 on:
     workflow_dispatch:
     push:
@@ -12,72 +12,78 @@ on:
         paths:
             - src/**
             - Dockerfile
-            - docker-compose.yml
-
-permissions:
-    contents: read
-    packages: write
+            - kubernetes.yml
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
-env:
-    PROJECT: project
-
 jobs:
     detect-changes:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
         outputs:
-            project: ${{ env.PROJECT }}
-            rebuild: ${{ steps.filter.outputs.rebuild }}
-            redeploy: ${{ steps.filter.outputs.redeploy }}
+            build: ${{ steps.filter.outputs.build }}
+            deploy: ${{ steps.filter.outputs.deploy }}
         steps:
             - uses: actions/checkout@v7
             - uses: dorny/paths-filter@v4
               id: filter
               with:
                   filters: |
-                      rebuild:
+                      build:
                           - 'src/**'
                           - 'Dockerfile'
-                      redeploy:
-                          - 'docker-compose.yml'
+                      deploy:
+                          - 'kubernetes.yml'
 
     test:
         needs: detect-changes
-        if: needs.detect-changes.outputs.rebuild == 'true'
+        if: needs.detect-changes.outputs.build == 'true'
         uses: v4ldum/shared-workflows/.github/workflows/test-rust.yml@main
         with:
-            test: true
-            format: true
-            clippy: true
+            format: false
+        permissions:
+            contents: read
 
     build:
-        needs: [detect-changes, test]
+        needs: test
         uses: v4ldum/shared-workflows/.github/workflows/build.yml@main
         secrets: inherit
         with:
-            project: ${{ needs.detect-changes.outputs.project }}
+            project: PROJECT
+        permissions:
+            contents: read
+            packages: write
 
     deploy:
         needs: [detect-changes, build]
         if: >-
-            always() &&
+            !cancelled() && !failure() &&
             (needs.build.result == 'success' ||
-             (needs.build.result == 'skipped' && needs.detect-changes.outputs.redeploy == 'true'))
+              needs.build.result == 'skipped' &&
+                needs.detect-changes.outputs.deploy == 'true')
         uses: v4ldum/shared-workflows/.github/workflows/deploy.yml@main
         secrets: inherit
         with:
-            project: ${{ needs.detect-changes.outputs.project }}
+            project: PROJECT
+            apply: ${{ needs.detect-changes.outputs.deploy == 'true' }}
+            rollout: ${{ needs.detect-changes.outputs.build == 'true' }}
+        permissions:
+            contents: read
+            id-token: write
 
     cleanup:
-        needs: [detect-changes, build]
+        needs: [build, deploy]
         if: needs.build.result == 'success'
         uses: v4ldum/shared-workflows/.github/workflows/cleanup.yml@main
         secrets: inherit
         with:
-            project: ${{ needs.detect-changes.outputs.project }}
+            project: PROJECT
+        permissions:
+            packages: write
+
 ```
 
 ## Flutter project
